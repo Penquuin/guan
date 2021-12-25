@@ -1,10 +1,12 @@
 # mainframe cmake list
 set(sourcefiles
 mainframe.cpp
+extdebug.cpp
+application.cpp
 )
 
 set(headerfiles
-
+application.hpp
 )
 
 
