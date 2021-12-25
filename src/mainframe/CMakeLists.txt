@@ -3,6 +3,7 @@ set(sourcefiles
 mainframe.cpp
 extdebug.cpp
 application.cpp
+window.cpp
 )
 
 set(headerfiles

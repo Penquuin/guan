@@ -2,7 +2,7 @@
 #include "application.hpp"
 
 int main() {
-    BaseApplication app;
+    application::BaseApplication app;
 
     try {
         app.run();
