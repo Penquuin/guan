@@ -9,7 +9,6 @@ const bool application::enableValidationLayers = true;
 bool application::BaseApplication::isDeviceSuitable(VkPhysicalDevice device) {
     VkPhysicalDeviceProperties deviceProperties;
     vkGetPhysicalDeviceProperties(device, &deviceProperties);
-    std::cout << deviceProperties.deviceName << std::endl;
     VkPhysicalDeviceFeatures deviceFeatures;
     vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
 
@@ -45,8 +44,8 @@ bool application::BaseApplication::checkDeviceExtensionSupport(VkPhysicalDevice 
 VKAPI_ATTR VkBool32 VKAPI_CALL application::debugCallback(
     VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity, VkDebugUtilsMessageTypeFlagsEXT messageType,
     const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData, void* pUserData) {
-    // if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
-    std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
+    if (messageSeverity >= VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT)
+        std::cerr << "validation layer: " << pCallbackData->pMessage << std::endl;
 
     return VK_FALSE;
 }

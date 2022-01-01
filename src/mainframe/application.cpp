@@ -48,11 +48,8 @@ void application::BaseApplication::createInstance() {
     std::vector<VkExtensionProperties> extensions(extensionCount);
     vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
-    std::cout << "available extensions:\n";
-
-    for (const auto& extension : extensions) {
-        std::cout << '\t' << extension.extensionName << '\n';
-    }
+    std::cout << "There are " << extensions.size() << " extensions for the application in total."
+              << std::endl;
 
     VkDebugUtilsMessengerCreateInfoEXT debugCreateInfo{};
     if (enableValidationLayers) {
@@ -94,6 +91,9 @@ void application::BaseApplication::pickPhysicalDevice() {
     if (physicalDevice == VK_NULL_HANDLE) {
         throw std::runtime_error("failed to find a suitable GPU!");
     }
+    VkPhysicalDeviceProperties deviceProperties;
+    vkGetPhysicalDeviceProperties(physicalDevice, &deviceProperties);
+    std::cout << deviceProperties.deviceName << " will be used in rendering..." << std::endl;
     this->physicalDevice = physicalDevice;
 }
 

@@ -96,6 +96,7 @@ class BaseApplication {
     void createSwapChain();
     void createImageViews();
     void createGraphicsPipeline();
+    VkShaderModule createShaderModule(const std::vector<char>& code);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
     void mainLoop() {
@@ -122,6 +123,8 @@ class BaseApplication {
 
         glfwTerminate();
     }
+    // utility
+    static std::vector<char> readFile(const std::string& filename);
 };
 
 }  // namespace application

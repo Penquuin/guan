@@ -1,4 +1,7 @@
 # mainframe cmake list
+set(SHADER_PATH ${CMAKE_CURRENT_SOURCE_DIR}/shaders)
+
+
 set(sourcefiles
 mainframe.cpp
 extdebug.cpp
@@ -18,6 +21,12 @@ set(VULKAN_SDK "D:/Libs/VulkanSDK")
 set(VULKAN_VERSION "1.2.198.1")
 set(VULKAN_PATH "${VULKAN_SDK}/${VULKAN_VERSION}")
 set(VULKAN_LIB_LIST "vulkan-1")
+
+add_definitions(-DSHADER_PATH="${SHADER_PATH}")
+
+# Compile
+execute_process(COMMAND ${VULKAN_PATH}/Bin/glslc.exe ${SHADER_PATH}/shader.vert -o ${SHADER_PATH}/vert.spv)
+execute_process(COMMAND ${VULKAN_PATH}/Bin/glslc.exe ${SHADER_PATH}/shader.frag -o ${SHADER_PATH}/frag.spv)
 
 
 target_link_directories(guan_mainframe
