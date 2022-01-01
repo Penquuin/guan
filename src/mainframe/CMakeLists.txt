@@ -4,6 +4,7 @@ mainframe.cpp
 extdebug.cpp
 application.cpp
 window.cpp
+pipeline.cpp
 )
 
 set(headerfiles
