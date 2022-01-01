@@ -60,6 +60,7 @@ class BaseApplication {
     VkDevice device;
     VkQueue graphicsQueue;
     VkQueue presentQueue;
+    std::vector<VkImageView> swapChainImageViews;
 
     bool checkValidationLayerSupport();
     bool checkDeviceExtensionSupport(VkPhysicalDevice device);
@@ -85,6 +86,7 @@ class BaseApplication {
         pickPhysicalDevice();
         createLogicalDevice();
         createSwapChain();
+        createImageViews();
     }
     void setupDebugMessenger();
     void createInstance();
@@ -92,6 +94,7 @@ class BaseApplication {
     void pickPhysicalDevice();
     void createLogicalDevice();
     void createSwapChain();
+    void createImageViews();
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
     void mainLoop() {
@@ -100,6 +103,10 @@ class BaseApplication {
         }
     }
     void cleanup() {
+        for (auto imageView : swapChainImageViews) {
+            vkDestroyImageView(device, imageView, nullptr);
+        }
+
         vkDestroySwapchainKHR(device, swapChain, nullptr);
         vkDestroyDevice(device, nullptr);
 
