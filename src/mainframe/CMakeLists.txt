@@ -13,9 +13,9 @@ application.hpp
 
 add_executable(guan_mainframe ${sourcefiles} ${headerfiles})
 
-set(VULKAN_SDK "D:/include/VulkanSDK")
+set(VULKAN_SDK "D:/Libs/VulkanSDK")
 set(VULKAN_VERSION "1.2.198.1")
-set(VULKAN_PATH "${VULKAN_SDK}${VULKAN_VERSION}")
+set(VULKAN_PATH "${VULKAN_SDK}/${VULKAN_VERSION}")
 set(VULKAN_LIB_LIST "vulkan-1")
 
 
