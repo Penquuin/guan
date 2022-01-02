@@ -73,9 +73,15 @@ class BaseApplication {
 
     VkSwapchainKHR swapChain;
     std::vector<VkImage> swapChainImages;
+    std::vector<VkFramebuffer> swapChainFramebuffers;
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
+    VkRenderPass renderPass;
+    VkPipelineLayout pipelineLayout;
+    VkPipeline graphicsPipeline;
 
+    VkCommandPool commandPool;
+    std::vector<VkCommandBuffer> commandBuffers;
     VkDebugUtilsMessengerEXT debugMessenger;
 
     void initWindow();
@@ -87,6 +93,11 @@ class BaseApplication {
         createLogicalDevice();
         createSwapChain();
         createImageViews();
+        createRenderPass();
+        createGraphicsPipeline();
+        createFramebuffers();
+        createCommandPool();
+        createCommandBuffers();
     }
     void setupDebugMessenger();
     void createInstance();
@@ -95,7 +106,11 @@ class BaseApplication {
     void createLogicalDevice();
     void createSwapChain();
     void createImageViews();
+    void createRenderPass();
     void createGraphicsPipeline();
+    void createFramebuffers();
+    void createCommandPool();
+    void createCommandBuffers();
     VkShaderModule createShaderModule(const std::vector<char>& code);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
@@ -105,6 +120,14 @@ class BaseApplication {
         }
     }
     void cleanup() {
+        vkDestroyCommandPool(device, commandPool, nullptr);
+
+        for (auto framebuffer : swapChainFramebuffers) {
+            vkDestroyFramebuffer(device, framebuffer, nullptr);
+        }
+        vkDestroyPipeline(device, graphicsPipeline, nullptr);
+        vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
+        vkDestroyRenderPass(device, renderPass, nullptr);
         for (auto imageView : swapChainImageViews) {
             vkDestroyImageView(device, imageView, nullptr);
         }
