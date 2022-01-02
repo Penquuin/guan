@@ -22,6 +22,7 @@ const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"
 const std::vector<const char*> deviceExtensions = {VK_KHR_SWAPCHAIN_EXTENSION_NAME};
 
 extern const bool enableValidationLayers;
+extern const int MAX_FRAMES_IN_FLIGHT;
 
 VKAPI_ATTR VkBool32 VKAPI_CALL debugCallback(VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
                                              VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -81,6 +82,13 @@ class BaseApplication {
     VkPipeline graphicsPipeline;
 
     VkCommandPool commandPool;
+
+    std::vector<VkSemaphore> imageAvailableSemaphores;
+    std::vector<VkSemaphore> renderFinishedSemaphores;
+    std::vector<VkFence> inFlightFences;
+    std::vector<VkFence> imagesInFlight;
+    size_t currentFrame = 0;
+
     std::vector<VkCommandBuffer> commandBuffers;
     VkDebugUtilsMessengerEXT debugMessenger;
 
@@ -98,6 +106,7 @@ class BaseApplication {
         createFramebuffers();
         createCommandPool();
         createCommandBuffers();
+        createSyncObjects();
     }
     void setupDebugMessenger();
     void createInstance();
@@ -111,15 +120,24 @@ class BaseApplication {
     void createFramebuffers();
     void createCommandPool();
     void createCommandBuffers();
+    void drawFrame();
+    void createSyncObjects();
     VkShaderModule createShaderModule(const std::vector<char>& code);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
     void mainLoop() {
         while (!glfwWindowShouldClose(window)) {
             glfwPollEvents();
+            drawFrame();
         }
+        vkDeviceWaitIdle(device);
     }
     void cleanup() {
+        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+            vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
+            vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
+            vkDestroyFence(device, inFlightFences[i], nullptr);
+        }
         vkDestroyCommandPool(device, commandPool, nullptr);
 
         for (auto framebuffer : swapChainFramebuffers) {
