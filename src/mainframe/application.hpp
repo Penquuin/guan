@@ -52,6 +52,7 @@ struct SwapChainSupportDetails {
 class BaseApplication {
    public:
     void run();
+    static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
    private:
     GLFWwindow* window;
@@ -89,6 +90,8 @@ class BaseApplication {
     std::vector<VkFence> imagesInFlight;
     size_t currentFrame = 0;
 
+    bool framebufferResized = false;
+
     std::vector<VkCommandBuffer> commandBuffers;
     VkDebugUtilsMessengerEXT debugMessenger;
 
@@ -108,6 +111,8 @@ class BaseApplication {
         createCommandBuffers();
         createSyncObjects();
     }
+    void simplifiedSwapChain();
+    void cleanupSwapChain();
     void setupDebugMessenger();
     void createInstance();
     void createSurface();
@@ -133,24 +138,16 @@ class BaseApplication {
         vkDeviceWaitIdle(device);
     }
     void cleanup() {
+        cleanupSwapChain();
+
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);
             vkDestroySemaphore(device, imageAvailableSemaphores[i], nullptr);
             vkDestroyFence(device, inFlightFences[i], nullptr);
         }
+
         vkDestroyCommandPool(device, commandPool, nullptr);
 
-        for (auto framebuffer : swapChainFramebuffers) {
-            vkDestroyFramebuffer(device, framebuffer, nullptr);
-        }
-        vkDestroyPipeline(device, graphicsPipeline, nullptr);
-        vkDestroyPipelineLayout(device, pipelineLayout, nullptr);
-        vkDestroyRenderPass(device, renderPass, nullptr);
-        for (auto imageView : swapChainImageViews) {
-            vkDestroyImageView(device, imageView, nullptr);
-        }
-
-        vkDestroySwapchainKHR(device, swapChain, nullptr);
         vkDestroyDevice(device, nullptr);
 
         if (enableValidationLayers) {
