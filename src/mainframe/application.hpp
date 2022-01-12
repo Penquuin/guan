@@ -1,21 +1,7 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
-#define VK_USE_PLATFORM_WIN32_KHR
-#define GLFW_INCLUDE_VULKAN
-#include <GLFW/glfw3.h>
-#define GLFW_EXPOSE_NATIVE_WIN32
-#include <GLFW/glfw3native.h>
-
-#include <algorithm>
-#include <cstdlib>
-#include <iostream>
-#include <optional>
-#include <set>
-#include <stdexcept>
-#include <vector>
-const uint32_t WIDTH = 800;
-const uint32_t HEIGHT = 600;
+#include "shared.hpp"
 
 namespace application {
 const std::vector<const char*> validationLayers = {"VK_LAYER_KHRONOS_validation"};
@@ -72,6 +58,7 @@ class BaseApplication {
     void populateDebugMessengerCreateInfo(VkDebugUtilsMessengerCreateInfoEXT& createInfo);
     SwapChainSupportDetails querySwapChainSupport(VkPhysicalDevice device);
     QueueFamilyIndices findQueueFamilies(VkPhysicalDevice device);
+    uint32_t findMemoryType(uint32_t typeFilter, VkMemoryPropertyFlags properties);
 
     VkSwapchainKHR swapChain;
     std::vector<VkImage> swapChainImages;
@@ -81,6 +68,9 @@ class BaseApplication {
     VkRenderPass renderPass;
     VkPipelineLayout pipelineLayout;
     VkPipeline graphicsPipeline;
+
+    VkBuffer vertexBuffer;
+    VkDeviceMemory vertexBufferMemory;
 
     VkCommandPool commandPool;
 
@@ -108,6 +98,8 @@ class BaseApplication {
         createGraphicsPipeline();
         createFramebuffers();
         createCommandPool();
+        createVertexBuffer();
+
         createCommandBuffers();
         createSyncObjects();
     }
@@ -124,6 +116,7 @@ class BaseApplication {
     void createGraphicsPipeline();
     void createFramebuffers();
     void createCommandPool();
+    void createVertexBuffer();
     void createCommandBuffers();
     void drawFrame();
     void createSyncObjects();
@@ -139,6 +132,9 @@ class BaseApplication {
     }
     void cleanup() {
         cleanupSwapChain();
+
+        vkDestroyBuffer(device, vertexBuffer, nullptr);
+        vkFreeMemory(device, vertexBufferMemory, nullptr);
 
         for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
             vkDestroySemaphore(device, renderFinishedSemaphores[i], nullptr);

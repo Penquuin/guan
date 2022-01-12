@@ -8,10 +8,13 @@ extdebug.cpp
 application.cpp
 window.cpp
 pipeline.cpp
+linalg.cpp
 )
 
 set(headerfiles
+shared.hpp
 application.hpp
+linalg.hpp
 )
 
 
