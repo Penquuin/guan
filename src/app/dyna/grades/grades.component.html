@@ -63,8 +63,16 @@
         <option value="4">期末考</option>
       </select>
     </div>
-    <button type="submit" [disabled]="!infoform.valid" class="btn btn-primary">
-      查詢
+    <button *ngIf="!infoform.valid" class="btn btn-danger" [disabled]="true">
+      輸入資料後即可查詢
+    </button>
+    <button
+      *ngIf="infoform.valid"
+      type="submit"
+      [disabled]="false"
+      class="btn btn-primary"
+    >
+      查詢(請先於學校成績查詢系統登入!)
     </button>
   </form>
 </div>
