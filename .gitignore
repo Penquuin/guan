@@ -1,5 +1,5 @@
 build
-vendor
+./vendor
 *.spv
 
 # Compiled output
