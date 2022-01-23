@@ -5,7 +5,7 @@ type info = { year: string; grade: string; semester: string; exam: string };
 const big5s = [
   "%B4%C1%AA%EC%BD%C6%B2%DF%A6%D2",
   "%B2%C4%A4%40%A6%B8%B4%C1%A4%A4%A6%D2",
-  "x%B2%C4%A4G%A6%B8%B4%C1%A4%A4%A6%D2",
+  "%B2%C4%A4G%A6%B8%B4%C1%A4%A4%A6%D2",
   "%B4%C1%A5%BD%A6%D2",
 ];
 
