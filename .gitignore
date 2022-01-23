@@ -1,1 +1,3 @@
 build
+*.spv
+node_modules
