@@ -2,6 +2,12 @@
 
 This project is called 光 (_Guan_), a Vulkan-based C++ rendering engine.
 
+## Warnings
+
+This system is still in its early status. Bugs may occur and sophisticated rendering techniques may not be
+practical at the moment. Any pull requests are strongly **encouraged**! I hope everyone
+can participate in the development of Guan.
+
 ## What is Guan?
 
 I've been designing the engine to display advanced 3D graphics stably and swiftly.
