@@ -1,5 +1,4 @@
 # Hello
 
-There's nothing here. Feel free to wander around.
-
-:smile:
+_Are you ready to dive in with me?_
+Computer graphics can be frustrating

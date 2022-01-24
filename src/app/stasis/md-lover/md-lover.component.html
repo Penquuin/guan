@@ -1,0 +1,4 @@
+<div *ngIf="this.loaded === false" class="alert alert-primary" role="alert">
+  Loading page....
+</div>
+<markdown (load)="onLoad()" src="{{ this.src }}" emoji></markdown>

@@ -34,6 +34,9 @@
             ],
             "scripts": [
               "node_modules/bootstrap/dist/js/bootstrap.bundle.min.js",
+              "node_modules/marked/lib/marked.js",
+              "node_modules/prismjs/prism.js",
+              "node_modules/prismjs/components/prism-c.min.js",
               "node_modules/emoji-toolkit/lib/js/joypixels.min.js"
             ]
           },
@@ -72,6 +75,12 @@
         },
         "serve": {
           "builder": "@angular-devkit/build-angular:dev-server",
+          "options": {
+            "browserTarget": "app:build",
+            "ssl": true,
+            "sslKey": "C:\\https_certs\\angular.local.key",
+            "sslCert": "C:\\https_certs\\angular.local.crt"
+          },
           "configurations": {
             "production": {
               "browserTarget": "guan:build:production"

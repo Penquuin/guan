@@ -1,0 +1,131 @@
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+  <strong>Early Development</strong> The redie page is still in construction.
+  <button
+    type="button"
+    class="btn-close"
+    data-bs-dismiss="alert"
+    aria-label="Close"
+  ></button>
+</div>
+
+<h1>Redie</h1>
+<footer>Search here...</footer>
+<br />
+
+<form
+  *ngIf="searching === false && result === undefined"
+  [formGroup]="redieForm"
+  (submit)="onSubmit()"
+>
+  <div class="form-group" style="display: flexbox; flex-flow: row">
+    <label class="center-block"
+      >Name:
+      <div class="input-group">
+        <span class="input-group-text">r/</span>
+        <input
+          class="form-control"
+          aria-label="With textarea"
+          formControlName="name"
+        />
+      </div>
+    </label>
+    <div *ngIf="name!.errors?.['required']">
+      <div class="badge bg-danger">Name is required.</div>
+    </div>
+    <div *ngIf="name!.errors?.['minlength']">
+      <div class="badge bg-warning">
+        Please input at least three characters.
+      </div>
+    </div>
+  </div>
+  <button
+    type="submit"
+    class="btn btn-success position-relative"
+    [disabled]="!redieForm.valid"
+    style="margin: 5px"
+  >
+    Submit
+  </button>
+</form>
+
+<div class="container-fluid" style="flex-flow: column">
+  <div
+    *ngIf="searching === true"
+    style="display: flex; flex-flow: row; margin: auto; width: min-content"
+  >
+    <div class="spinner-border" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
+  <div
+    *ngIf="searching === false && result !== undefined"
+    style="display: flex; flex-flow: column; margin: auto"
+  >
+    <input
+      class="btn btn-primary"
+      type="reset"
+      value="Reset"
+      (click)="searching = false; result = undefined"
+      style="margin: 10px; padding: 5px; min-width: 5rem; width: min-content"
+    />
+    <div
+      *ngFor="let item of result.data; let i = index"
+      class="accordion"
+      id="acc"
+    >
+      <div class="accordion-item">
+        <h2 class="accordion-header" id="heading{{ i }}">
+          <button
+            class="accordion-button"
+            type="button"
+            data-bs-toggle="collapse"
+            [attr.data-bs-target]="'#acc' + i"
+            aria-expanded="true"
+            [attr.aria-controls]="'acc' + i"
+          >
+            {{ i }}. "{{ item.title }}" - u/{{ item.author }}
+            <span
+              *ngIf="item.author_flair_text !== ''"
+              class="badge"
+              style="
+              margin-left: 5px;
+            background-color: {{ item.author_flair_background_color }};
+            z-index: 99;"
+            >
+              {{ item.author_flair_text }}
+            </span>
+          </button>
+        </h2>
+        <div
+          id="acc{{ i }}"
+          class="accordion-collapse collapse show"
+          [attr.aria-labelledby]="'heading' + i"
+          data-bs-parent="#accordionExample"
+        >
+          <div class="accordion-body">
+            <a
+              type="button"
+              class="btn btn-outline-primary"
+              href="{{ item.url }}"
+              >Original Post</a
+            >
+            <span
+              *ngIf="item.link_flair_text !== ''"
+              class="badge"
+              style="
+              margin-left: 1rem;
+            background-color: {{ item.link_flair_background_color }};
+            z-index: 99;"
+            >
+              {{ item.link_flair_text }}
+            </span>
+            <hr />
+            <markdown emoji>
+              {{ item.selftext }}
+            </markdown>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
