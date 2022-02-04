@@ -6,9 +6,9 @@
 
 const int application::MAX_FRAMES_IN_FLIGHT = 2;
 
-const std::vector<Vertex> vertices = {{{0.0f, -0.5f}, {0.5f, 0.0f, 0.0f}},
-                                      {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
-                                      {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
+std::vector<Vertex> vertices = {{{0.0f, -0.5f}, {0.5f, 0.0f, 0.0f}},
+                                {{0.5f, 0.5f}, {0.0f, 1.0f, 0.0f}},
+                                {{-0.5f, 0.5f}, {0.0f, 0.0f, 1.0f}}};
 
 void application::BaseApplication::createGraphicsPipeline() {
     auto vertShaderCode = readFile("vert.spv");
@@ -229,6 +229,9 @@ void application::BaseApplication::createCommandPool() {
 }
 
 void application::BaseApplication::createVertexBuffer() {
+    /**
+     * @brief This system will fetch the essential requirements for the circumstances.
+     */
     VkBufferCreateInfo bufferInfo{};
     bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
     bufferInfo.size = sizeof(vertices[0]) * vertices.size();

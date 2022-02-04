@@ -11,6 +11,6 @@ struct Vertex {
     static VkVertexInputBindingDescription getBindingDescription();
     static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions();
 };
-extern const std::vector<Vertex> vertices;
+extern std::vector<Vertex> vertices;
 
 #endif
