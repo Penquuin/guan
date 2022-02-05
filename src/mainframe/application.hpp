@@ -71,6 +71,8 @@ class BaseApplication {
 
     VkBuffer vertexBuffer;
     VkDeviceMemory vertexBufferMemory;
+    VkBuffer indexBuffer;
+    VkDeviceMemory indexBufferMemory;
 
     VkCommandPool commandPool;
 
@@ -99,6 +101,7 @@ class BaseApplication {
         createFramebuffers();
         createCommandPool();
         createVertexBuffer();
+        createIndexBuffer();
 
         createCommandBuffers();
         createSyncObjects();
@@ -117,6 +120,7 @@ class BaseApplication {
     void createFramebuffers();
     void createCommandPool();
     void createVertexBuffer();
+    void createIndexBuffer();
     void createCommandBuffers();
     void drawFrame();
     void createSyncObjects();
@@ -135,6 +139,9 @@ class BaseApplication {
     }
     void cleanup() {
         cleanupSwapChain();
+
+        vkDestroyBuffer(device, indexBuffer, nullptr);
+        vkFreeMemory(device, indexBufferMemory, nullptr);
 
         vkDestroyBuffer(device, vertexBuffer, nullptr);
         vkFreeMemory(device, vertexBufferMemory, nullptr);

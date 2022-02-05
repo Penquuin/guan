@@ -12,5 +12,6 @@ struct Vertex {
     static std::array<VkVertexInputAttributeDescription, 2> getAttributeDescriptions();
 };
 extern std::vector<Vertex> vertices;
+extern std::vector<uint16_t> indices;
 
 #endif
