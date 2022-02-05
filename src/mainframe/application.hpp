@@ -120,6 +120,9 @@ class BaseApplication {
     void createCommandBuffers();
     void drawFrame();
     void createSyncObjects();
+    void createBuffer(VkDeviceSize size, VkBufferUsageFlags usage, VkMemoryPropertyFlags properties,
+                      VkBuffer& buffer, VkDeviceMemory& bufferMemory);
+    void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
     VkShaderModule createShaderModule(const std::vector<char>& code);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
