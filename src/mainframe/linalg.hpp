@@ -14,4 +14,10 @@ struct Vertex {
 extern std::vector<Vertex> vertices;
 extern std::vector<uint16_t> indices;
 
+struct UniformBufferObject {
+    glm::mat4 model;
+    glm::mat4 view;
+    glm::mat4 proj;
+};
+
 #endif
