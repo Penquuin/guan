@@ -6,6 +6,13 @@
 #include "application.hpp"
 #include "linalg.hpp"
 
+/**
+ * Original Author: Penquuin
+ * Tips:
+ * I'll add auto margin for the sake of ease
+ * in using struct inside shader codes.
+ */
+
 const int application::MAX_FRAMES_IN_FLIGHT = 2;
 
 void application::BaseApplication::createGraphicsPipeline() {
