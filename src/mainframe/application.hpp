@@ -78,6 +78,12 @@ class BaseApplication {
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
 
+    // we need staging buffers 4 images!
+    VkBuffer stagingBuffer;
+    VkDeviceMemory stagingBufferMemory;
+    VkImage textureImage;
+    VkDeviceMemory textureImageMemory;
+
     std::vector<VkBuffer> uniformBuffers;
     std::vector<VkDeviceMemory> uniformBuffersMemory;
 
