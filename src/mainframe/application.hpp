@@ -108,6 +108,7 @@ class BaseApplication {
         createGraphicsPipeline();
         createFramebuffers();
         createCommandPool();
+        createTextureImage();
         createVertexBuffer();
         createIndexBuffer();
         createUniformBuffers();
@@ -144,6 +145,8 @@ class BaseApplication {
     void createDescriptorSets();
     VkShaderModule createShaderModule(const std::vector<char>& code);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
+
+    void createTextureImage();
 
     void mainLoop() {
         while (!glfwWindowShouldClose(window)) {
