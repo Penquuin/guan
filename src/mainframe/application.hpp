@@ -24,6 +24,8 @@ VkResult CreateDebugUtilsMessengerEXT(VkInstance instance,
 void DestroyDebugUtilsMessengerEXT(VkInstance instance, VkDebugUtilsMessengerEXT debugMessenger,
                                    const VkAllocationCallbacks* pAllocator);
 
+bool hasStencilComponent(VkFormat format);
+
 struct QueueFamilyIndices {
     std::optional<uint32_t> graphicsFamily;
     std::optional<uint32_t> presentFamily;
@@ -86,6 +88,10 @@ class BaseApplication {
     VkImageView textureImageView;
     VkSampler textureSampler;
 
+    VkImage depthImage;
+    VkDeviceMemory depthImageMemory;
+    VkImageView depthImageView;
+
     std::vector<VkBuffer> uniformBuffers;
     std::vector<VkDeviceMemory> uniformBuffersMemory;
 
@@ -113,8 +119,9 @@ class BaseApplication {
         createRenderPass();
         createDescriptorSetLayout();
         createGraphicsPipeline();
-        createFramebuffers();
         createCommandPool();
+        createDepthResources();
+        createFramebuffers();
         createTextureImage();
         createTextureImageView();
         createTextureSampler();
@@ -140,6 +147,7 @@ class BaseApplication {
     void createGraphicsPipeline();
     void createFramebuffers();
     void createCommandPool();
+    void createDepthResources();
     void createVertexBuffer();
     void createIndexBuffer();
     void createUniformBuffers();
@@ -152,6 +160,9 @@ class BaseApplication {
                       VkBuffer& buffer, VkDeviceMemory& bufferMemory);
     void copyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
     void updateUniformBuffer(uint32_t currentImage);
+    VkFormat findSupportedFormat(const std::vector<VkFormat>& candidates, VkImageTiling tiling,
+                                 VkFormatFeatureFlags features);
+    VkFormat findDepthFormat();
     void createDescriptorSets();
     VkShaderModule createShaderModule(const std::vector<char>& code);
     VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
@@ -159,7 +170,7 @@ class BaseApplication {
     void createImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling,
                      VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage& image,
                      VkDeviceMemory& imageMemory);
-    VkImageView createImageView(VkImage image, VkFormat format);
+    VkImageView createImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags);
     void transitionImageLayout(VkImage image, VkFormat format, VkImageLayout oldLayout,
                                VkImageLayout newLayout);
     void copyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
