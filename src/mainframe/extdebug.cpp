@@ -22,7 +22,8 @@ bool application::BaseApplication::isDeviceSuitable(VkPhysicalDevice device) {
     }
 
     return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU &&
-           deviceFeatures.geometryShader && indices.isComplete() && extensionsSupported && swapChainAdequate;
+           deviceFeatures.geometryShader && indices.isComplete() && extensionsSupported &&
+           swapChainAdequate && deviceFeatures.samplerAnisotropy;
 }
 
 bool application::BaseApplication::checkDeviceExtensionSupport(VkPhysicalDevice device) {
