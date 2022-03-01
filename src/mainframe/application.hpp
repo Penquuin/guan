@@ -1,6 +1,7 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
+#include "linalg.hpp"
 #include "shared.hpp"
 
 namespace application {
@@ -102,6 +103,9 @@ class BaseApplication {
     std::vector<VkFence> inFlightFences;
     size_t currentFrame = 0;
 
+    std::vector<Vertex> vertices;
+    std::vector<uint32_t> indices;
+
     bool framebufferResized = false;
 
     std::vector<VkCommandBuffer> commandBuffers;
@@ -125,6 +129,7 @@ class BaseApplication {
         createTextureImage();
         createTextureImageView();
         createTextureSampler();
+        loadModel();
         createVertexBuffer();
         createIndexBuffer();
         createUniformBuffers();
@@ -177,6 +182,7 @@ class BaseApplication {
     void createTextureImage();
     void createTextureImageView();
     void createTextureSampler();
+    void loadModel();
 
     VkCommandBuffer beginSingleTimeCommands();
     void endSingleTimeCommands(VkCommandBuffer commandBuffer);
