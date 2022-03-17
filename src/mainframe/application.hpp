@@ -1,6 +1,7 @@
 #ifndef APPLICATION_HPP
 #define APPLICATION_HPP
 
+#include "entities/object.hpp"
 #include "linalg.hpp"
 #include "shared.hpp"
 
@@ -44,6 +45,7 @@ class BaseApplication {
     static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
 
    private:
+    size_t MAX_FRAMES_W_OBJECT;
     GLFWwindow* window;
     VkInstance instance;
     VkSurfaceKHR surface;
@@ -69,7 +71,7 @@ class BaseApplication {
     VkFormat swapChainImageFormat;
     VkExtent2D swapChainExtent;
     VkRenderPass renderPass;
-    VkDescriptorSetLayout descriptorSetLayout;
+    std::vector<VkDescriptorSetLayout> descriptorSetLayouts;
     VkDescriptorPool descriptorPool;
     std::vector<VkDescriptorSet> descriptorSets;
 
@@ -81,14 +83,16 @@ class BaseApplication {
     VkBuffer indexBuffer;
     VkDeviceMemory indexBufferMemory;
 
+    std::vector<object> objects;
+
     // we need staging buffers 4 images!
     VkBuffer stagingBuffer;
     VkDeviceMemory stagingBufferMemory;
     uint32_t mipLevels;
-    VkImage textureImage;
-    VkDeviceMemory textureImageMemory;
-    VkImageView textureImageView;
-    VkSampler textureSampler;
+    std::vector<VkImage> textureImages;
+    std::vector<VkDeviceMemory> textureImageMemories;
+    std::vector<VkImageView> textureImageViews;
+    std::vector<VkSampler> textureSamplers;
 
     VkImage depthImage;
     VkDeviceMemory depthImageMemory;
@@ -114,6 +118,12 @@ class BaseApplication {
 
     void initWindow();
     void initVulkan() {
+        objects.push_back(*object::createTex(std::string("viking_room.obj"), std::string("viking_room.png")));
+        /**
+         * @brief Create a Instance object
+         * models
+         */
+        MAX_FRAMES_W_OBJECT = MAX_FRAMES_IN_FLIGHT * objects.size();
         createInstance();
         setupDebugMessenger();
         createSurface();
@@ -201,20 +211,22 @@ class BaseApplication {
     void cleanup() {
         cleanupSwapChain();
 
-        for (size_t i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+        for (size_t i = 0; i < uniformBuffers.size(); i++) {
             vkDestroyBuffer(device, uniformBuffers[i], nullptr);
             vkFreeMemory(device, uniformBuffersMemory[i], nullptr);
         }
 
         vkDestroyDescriptorPool(device, descriptorPool, nullptr);
 
-        vkDestroySampler(device, textureSampler, nullptr);
-        vkDestroyImageView(device, textureImageView, nullptr);
+        for (auto& item : textureSamplers) vkDestroySampler(device, item, nullptr);
 
-        vkDestroyImage(device, textureImage, nullptr);
-        vkFreeMemory(device, textureImageMemory, nullptr);
-
-        vkDestroyDescriptorSetLayout(device, descriptorSetLayout, nullptr);
+        for (size_t i = 0; i < objects.size(); i++) {
+            vkDestroyImageView(device, textureImageViews.at(i), nullptr);
+            vkDestroyImage(device, textureImages.at(i), nullptr);
+            vkFreeMemory(device, textureImageMemories.at(i), nullptr);
+        }
+        for (auto& descSetLayout : descriptorSetLayouts)
+            vkDestroyDescriptorSetLayout(device, descSetLayout, nullptr);
 
         vkDestroyBuffer(device, indexBuffer, nullptr);
         vkFreeMemory(device, indexBufferMemory, nullptr);

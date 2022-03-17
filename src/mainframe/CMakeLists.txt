@@ -12,12 +12,14 @@ window.cpp
 pipeline.cpp
 linalg.cpp
 image.cpp
+entities/object.cpp
 )
 
 set(headerfiles
 shared.hpp
 application.hpp
 linalg.hpp
+entities/object.hpp
 )
 
 

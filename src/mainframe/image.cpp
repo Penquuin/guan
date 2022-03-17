@@ -9,44 +9,49 @@
 #include "application.hpp"
 
 void application::BaseApplication::createTextureImage() {
-    int texWidth, texHeight, texChannels;
-    std::string base = MOD_PATH;
-    base += "/viking_room.png";
-    stbi_uc* pixels = stbi_load(base.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-    VkDeviceSize imageSize = texWidth * texHeight * 4;
-    mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
+    size_t objs = objects.size();
+    textureImages.resize(objs);
+    textureImageMemories.resize(objs);
+    for (size_t i = 0; i < objs; i++) {
+        std::string base = MOD_PATH;
+        int texWidth, texHeight, texChannels;
+        base += "/" + objects.at(i).texPath.value_or("Lol.png");
+        stbi_uc* pixels = stbi_load(base.c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+        VkDeviceSize imageSize = texWidth * texHeight * 4;
+        mipLevels = static_cast<uint32_t>(std::floor(std::log2(std::max(texWidth, texHeight)))) + 1;
 
-    if (!pixels) {
-        throw std::runtime_error("failed to load texture image!");
+        if (!pixels) {
+            throw std::runtime_error("failed to load texture image!");
+        }
+
+        VkBuffer stagingBuffer;
+        VkDeviceMemory stagingBufferMemory;
+        createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+                     VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT,
+                     stagingBuffer, stagingBufferMemory);
+        void* data;
+        vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
+        memcpy(data, pixels, static_cast<size_t>(imageSize));
+        vkUnmapMemory(device, stagingBufferMemory);
+
+        stbi_image_free(pixels);
+
+        createImage(
+            texWidth, texHeight, mipLevels, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
+            VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImages.at(i), textureImageMemories.at(i));
+
+        transitionImageLayout(textureImages.at(i), VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
+                              VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels);
+        copyBufferToImage(stagingBuffer, textureImages.at(i), static_cast<uint32_t>(texWidth),
+                          static_cast<uint32_t>(texHeight));
+
+        vkDestroyBuffer(device, stagingBuffer, nullptr);
+        vkFreeMemory(device, stagingBufferMemory, nullptr);
+
+        generateMipmaps(textureImages.at(i), VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels);
+        (objects.data() + i)->texImage = &textureImages.at(i);
     }
-
-    VkBuffer stagingBuffer;
-    VkDeviceMemory stagingBufferMemory;
-    createBuffer(imageSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-                 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, stagingBuffer,
-                 stagingBufferMemory);
-
-    void* data;
-    vkMapMemory(device, stagingBufferMemory, 0, imageSize, 0, &data);
-    memcpy(data, pixels, static_cast<size_t>(imageSize));
-    vkUnmapMemory(device, stagingBufferMemory);
-
-    stbi_image_free(pixels);
-
-    createImage(
-        texWidth, texHeight, mipLevels, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_TILING_OPTIMAL,
-        VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, textureImage, textureImageMemory);
-
-    transitionImageLayout(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_LAYOUT_UNDEFINED,
-                          VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevels);
-    copyBufferToImage(stagingBuffer, textureImage, static_cast<uint32_t>(texWidth),
-                      static_cast<uint32_t>(texHeight));
-
-    vkDestroyBuffer(device, stagingBuffer, nullptr);
-    vkFreeMemory(device, stagingBufferMemory, nullptr);
-
-    generateMipmaps(textureImage, VK_FORMAT_R8G8B8A8_SRGB, texWidth, texHeight, mipLevels);
 }
 
 void application::BaseApplication::generateMipmaps(VkImage image, VkFormat imageFormat, int32_t texWidth,
@@ -302,34 +307,42 @@ VkImageView application::BaseApplication::createImageView(VkImage image, VkForma
 }
 
 void application::BaseApplication::createTextureImageView() {
-    textureImageView =
-        createImageView(textureImage, VK_FORMAT_R8G8B8A8_SRGB, VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
+    size_t objs = objects.size();
+    textureImageViews.resize(objs);
+    for (size_t i = 0; i < objs; i++) {
+        textureImageViews[i] = createImageView(*(objects.data() + i)->texImage, VK_FORMAT_R8G8B8A8_SRGB,
+                                               VK_IMAGE_ASPECT_COLOR_BIT, mipLevels);
+        (objects.data() + i)->texImageView = textureImageViews.data() + i;
+    }
 }
 
 void application::BaseApplication::createTextureSampler() {
-    VkPhysicalDeviceProperties properties{};
-    vkGetPhysicalDeviceProperties(physicalDevice, &properties);
+    textureSamplers.resize(objects.size());
+    for (size_t i = 0; i < textureSamplers.size(); i++) {
+        VkPhysicalDeviceProperties properties{};
+        vkGetPhysicalDeviceProperties(physicalDevice, &properties);
 
-    VkSamplerCreateInfo samplerInfo{};
-    samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-    samplerInfo.magFilter = VK_FILTER_LINEAR;
-    samplerInfo.minFilter = VK_FILTER_LINEAR;
-    samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-    samplerInfo.anisotropyEnable = VK_TRUE;
-    samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
-    samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-    samplerInfo.unnormalizedCoordinates = VK_FALSE;
-    samplerInfo.compareEnable = VK_FALSE;
-    samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-    samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
-    samplerInfo.minLod = 0.0f;
-    samplerInfo.maxLod = static_cast<float>(mipLevels);
-    samplerInfo.mipLodBias = 0.0f;
+        VkSamplerCreateInfo samplerInfo{};
+        samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
+        samplerInfo.magFilter = VK_FILTER_LINEAR;
+        samplerInfo.minFilter = VK_FILTER_LINEAR;
+        samplerInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+        samplerInfo.anisotropyEnable = VK_TRUE;
+        samplerInfo.maxAnisotropy = properties.limits.maxSamplerAnisotropy;
+        samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
+        samplerInfo.unnormalizedCoordinates = VK_FALSE;
+        samplerInfo.compareEnable = VK_FALSE;
+        samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
+        samplerInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
+        samplerInfo.minLod = 0.0f;
+        samplerInfo.maxLod = static_cast<float>(mipLevels);
+        samplerInfo.mipLodBias = 0.0f;
 
-    if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSampler) != VK_SUCCESS) {
-        throw std::runtime_error("failed to create texture sampler!");
+        if (vkCreateSampler(device, &samplerInfo, nullptr, &textureSamplers[i]) != VK_SUCCESS) {
+            throw std::runtime_error("failed to create texture sampler!");
+        }
     }
 }
 
@@ -367,37 +380,46 @@ void application::BaseApplication::createDepthResources() {
 }
 
 void application::BaseApplication::loadModel() {
-    tinyobj::attrib_t attrib;
-    std::vector<tinyobj::shape_t> shapes;
-    std::vector<tinyobj::material_t> materials;
-    std::unordered_map<Vertex, uint32_t> uniqueVertices{};
-    std::string warn, err;
+    for (auto& object : objects) {
+        tinyobj::attrib_t attrib;
+        std::vector<tinyobj::shape_t> shapes;
+        std::vector<tinyobj::material_t> materials;
+        std::unordered_map<Vertex, uint32_t> uniqueVertices{};
+        std::string warn, err;
 
-    std::string base = MOD_PATH;
-    base += "/viking_room.obj";
-    if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, base.c_str())) {
-        throw std::runtime_error(warn + err);
-    }
-    for (const auto& shape : shapes) {
-        for (const auto& index : shape.mesh.indices) {
-            Vertex vertex{};
+        std::string base = MOD_PATH;
+        base += "/" + object.modelPath;
+        if (!tinyobj::LoadObj(&attrib, &shapes, &materials, &warn, &err, base.c_str(),
+                              object.mtlPath.has_value() ? object.mtlPath.value().c_str() : NULL)) {
+            throw std::runtime_error(warn + err);
+        }
+        int f = 1;
+        for (const auto& shape : shapes) {
+            for (const auto& index : shape.mesh.indices) {
+                if (f) {
+                    f = 0;
+                    object.firstIndex = indices.size();
+                    object.vertexOffset = vertices.size();
+                }
+                Vertex vertex{};
 
-            vertex.pos = {attrib.vertices[3 * index.vertex_index + 0],
-                          attrib.vertices[3 * index.vertex_index + 1],
-                          attrib.vertices[3 * index.vertex_index + 2]};
+                vertex.pos = {attrib.vertices[3 * index.vertex_index + 0],
+                              attrib.vertices[3 * index.vertex_index + 1],
+                              attrib.vertices[3 * index.vertex_index + 2]};
 
-            vertex.texCoord = {attrib.texcoords[2 * index.texcoord_index + 0],
-                               1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
+                if (object.texPath.has_value())
+                    vertex.texCoord = {attrib.texcoords[2 * index.texcoord_index + 0],
+                                       1.0f - attrib.texcoords[2 * index.texcoord_index + 1]};
+                else
+                    vertex.texCoord = {0.0f, 0.0f};
 
-            vertex.color = {1.0f, 1.0f, 1.0f};
+                if (uniqueVertices.count(vertex) == 0) {
+                    uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
+                    vertices.push_back(vertex);
+                }
 
-            vertices.push_back(vertex);
-            if (uniqueVertices.count(vertex) == 0) {
-                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.size());
-                vertices.push_back(vertex);
+                indices.push_back(uniqueVertices[vertex]);
             }
-
-            indices.push_back(uniqueVertices[vertex]);
         }
     }
 }
