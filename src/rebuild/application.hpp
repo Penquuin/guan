@@ -1,13 +1,31 @@
 #pragma once
 
+#include <memory>
+#include <vector>
+
+#include "device.hpp"
+#include "pipeline.hpp"
+#include "swapchain.hpp"
 #include "window.hpp"
 
 namespace reb {
 class Application {
    private:
-    Window window{WIDTH, HEIGHT, "Hello Vulkan"};
     static constexpr int WIDTH = 800;
     static constexpr int HEIGHT = 800;
+
+    void createPipelineLayout();
+    void createPipeline();
+    void createCommandBuffers();
+    void drawFrame();
+
+    Window window{WIDTH, HEIGHT, "Hello Vulkan"};
+    Device device{window};
+    SwapChain swapchain{device, window.getExtent()};
+    std::unique_ptr<Pipeline> pipeline;
+    VkPipelineLayout pipelineLayout;
+    std::vector<VkCommandBuffer> commandBuffers;
+    Pipeline pipeline{&device, "vert.spv", "frag.spv", Pipeline::defaultPipelineConfigInfo(WIDTH, HEIGHT)};
 
    public:
     void run();

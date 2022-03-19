@@ -7,15 +7,23 @@ set(sourcefiles
 main.cpp
 window.cpp
 application.cpp
+pipeline.cpp
+device.cpp
+swapchain.cpp
 )
 
 set(headerfiles
 window.hpp
 application.hpp
+pipeline.hpp
+device.hpp
+swapchain.hpp
 )
 
 
 add_executable(guan_rebuild ${sourcefiles} ${headerfiles})
+
+add_definitions(-DSHADER_PATH="${SHADER_PATH}")
 
 set(LIB_PATH "D:/Libs")
 
@@ -24,8 +32,8 @@ set(VULKAN_VERSION "1.2.198.1")
 set(VULKAN_PATH "${VULKAN_SDK}/${VULKAN_VERSION}")
 set(VULKAN_LIB_LIST "vulkan-1")
 # Compile
-# execute_process(COMMAND ${VULKAN_PATH}/Bin/glslc.exe ${SHADER_PATH}/shader.vert -o ${SHADER_PATH}/vert.spv)
-# execute_process(COMMAND ${VULKAN_PATH}/Bin/glslc.exe ${SHADER_PATH}/shader.frag -o ${SHADER_PATH}/frag.spv)
+execute_process(COMMAND ${VULKAN_PATH}/Bin/glslc.exe ${SHADER_PATH}/vertexShader.vert -o ${SHADER_PATH}/vert.spv)
+execute_process(COMMAND ${VULKAN_PATH}/Bin/glslc.exe ${SHADER_PATH}/fragShader.frag -o ${SHADER_PATH}/frag.spv)
 
 
 target_link_directories(guan_rebuild
