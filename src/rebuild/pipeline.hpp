@@ -39,6 +39,8 @@ class Pipeline
     Pipeline(Device *device, std::string vertShaderPath, std::string fragShaderPath, PipelineConfigInfo configInfo);
     ~Pipeline();
 
+    void bind(VkCommandBuffer commandBuffer);
+
     Pipeline(const Pipeline &) = delete;
     void operator=(const Pipeline &) = delete;
 
