@@ -6,23 +6,25 @@
 #include <iostream>
 #include <stdexcept>
 
-namespace reb {
+namespace reb
+{
 
-Pipeline::Pipeline(Device* device, std::string vertShaderPath, std::string fragShaderPath,
-                   PipelineConfigInfo configInfo)
-    : device(device) {
+Pipeline::Pipeline(Device *device, std::string vertShaderPath, std::string fragShaderPath, PipelineConfigInfo configInfo) : device(device)
+{
     createGraphicPipeline(&vertShaderPath, &fragShaderPath, configInfo);
 }
-Pipeline::~Pipeline() {
+Pipeline::~Pipeline()
+{
     vkDestroyShaderModule(device->device(), vertShader, nullptr);
     vkDestroyShaderModule(device->device(), fragShader, nullptr);
     vkDestroyPipeline(device->device(), graphicsPipeline, nullptr);
 }
 
-std::vector<char> Pipeline::readFile(const std::string* const filePath) {
-    std::ifstream file((std::string(SHADER_PATH) + "/" + *filePath).c_str(),
-                       std::ios::ate | std::ios::binary);
-    if (!file.is_open()) {
+std::vector<char> Pipeline::readFile(const std::string *const filePath)
+{
+    std::ifstream file((std::string(SHADER_PATH) + "/" + *filePath).c_str(), std::ios::ate | std::ios::binary);
+    if (!file.is_open())
+    {
         throw std::runtime_error("Failed to open " + *filePath);
     }
 
@@ -37,8 +39,8 @@ std::vector<char> Pipeline::readFile(const std::string* const filePath) {
     return buf;
 }
 
-void Pipeline::createGraphicPipeline(const std::string* vertShaderPath, const std::string* fragShaderPath,
-                                     PipelineConfigInfo& configInfo) {
+void Pipeline::createGraphicPipeline(const std::string *vertShaderPath, const std::string *fragShaderPath, PipelineConfigInfo &configInfo)
+{
     assert(configInfo.pipelineLayout != VK_NULL_HANDLE && "Cannot create graphics pipeline| Pipeline Layout");
     assert(configInfo.renderPass != VK_NULL_HANDLE && "Cannot create graphics pipeline| Render Pass");
     std::vector<char> vertCode = readFile(vertShaderPath), fragCode = readFile(fragShaderPath);
@@ -80,6 +82,17 @@ void Pipeline::createGraphicPipeline(const std::string* vertShaderPath, const st
     viewportInfo.scissorCount = 1;
     viewportInfo.pScissors = &configInfo.scissor;
 
+    VkPipelineColorBlendStateCreateInfo colorBlendInfo{};
+    colorBlendInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
+    colorBlendInfo.logicOpEnable = VK_FALSE;
+    colorBlendInfo.logicOp = VK_LOGIC_OP_COPY;
+    colorBlendInfo.attachmentCount = 1;
+    colorBlendInfo.pAttachments = &configInfo.colorBlendAttachment;
+    colorBlendInfo.blendConstants[0] = 0.0f;
+    colorBlendInfo.blendConstants[1] = 0.0f;
+    colorBlendInfo.blendConstants[2] = 0.0f;
+    colorBlendInfo.blendConstants[3] = 0.0f;
+
     VkGraphicsPipelineCreateInfo pipelineInfo{};
     pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
     pipelineInfo.stageCount = 2;
@@ -90,7 +103,7 @@ void Pipeline::createGraphicPipeline(const std::string* vertShaderPath, const st
     pipelineInfo.pRasterizationState = &configInfo.rasterizationInfo;
     pipelineInfo.pMultisampleState = &configInfo.multisampleInfo;
 
-    pipelineInfo.pColorBlendState = &configInfo.colorBlendInfo;
+    pipelineInfo.pColorBlendState = &colorBlendInfo;
     pipelineInfo.pDepthStencilState = &configInfo.depthStencilInfo;
     pipelineInfo.pDynamicState = nullptr;
 
@@ -101,24 +114,27 @@ void Pipeline::createGraphicPipeline(const std::string* vertShaderPath, const st
     pipelineInfo.basePipelineIndex = -1;
     pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 
-    if (vkCreateGraphicsPipelines(device->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr,
-                                  &graphicsPipeline) != VK_SUCCESS) {
+    if (vkCreateGraphicsPipelines(device->device(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &graphicsPipeline) != VK_SUCCESS)
+    {
         throw std::runtime_error("Failed to create graphics pipelines!");
     }
 }
 
-void Pipeline::createShaderModule(const std::vector<char>* code, VkShaderModule* module) {
+void Pipeline::createShaderModule(const std::vector<char> *code, VkShaderModule *module)
+{
     VkShaderModuleCreateInfo createInfo{};
     createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
     createInfo.codeSize = code->size();
-    createInfo.pCode = reinterpret_cast<const uint32_t*>(code->data());
+    createInfo.pCode = reinterpret_cast<const uint32_t *>(code->data());
 
-    if (vkCreateShaderModule(device->device(), &createInfo, nullptr, module) != VK_SUCCESS) {
+    if (vkCreateShaderModule(device->device(), &createInfo, nullptr, module) != VK_SUCCESS)
+    {
         throw std::runtime_error("failed to create shader module!");
     }
 };
 
-PipelineConfigInfo Pipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t height) {
+PipelineConfigInfo Pipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t height)
+{
     PipelineConfigInfo configInfo{};
 
     configInfo.inputAssemblyInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
@@ -155,8 +171,8 @@ PipelineConfigInfo Pipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t 
     configInfo.multisampleInfo.alphaToCoverageEnable = VK_FALSE;
     configInfo.multisampleInfo.alphaToOneEnable = VK_FALSE;
 
-    configInfo.colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT |
-                                                     VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
+    configInfo.colorBlendAttachment.colorWriteMask =
+        VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
     configInfo.colorBlendAttachment.blendEnable = VK_FALSE;
     configInfo.colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
     configInfo.colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ZERO;
@@ -164,16 +180,6 @@ PipelineConfigInfo Pipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t 
     configInfo.colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
     configInfo.colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ZERO;
     configInfo.colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
-
-    configInfo.colorBlendInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
-    configInfo.colorBlendInfo.logicOpEnable = VK_FALSE;
-    configInfo.colorBlendInfo.logicOp = VK_LOGIC_OP_COPY;
-    configInfo.colorBlendInfo.attachmentCount = 1;
-    configInfo.colorBlendInfo.pAttachments = &configInfo.colorBlendAttachment;
-    configInfo.colorBlendInfo.blendConstants[0] = 0.0f;
-    configInfo.colorBlendInfo.blendConstants[1] = 0.0f;
-    configInfo.colorBlendInfo.blendConstants[2] = 0.0f;
-    configInfo.colorBlendInfo.blendConstants[3] = 0.0f;
 
     configInfo.depthStencilInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
     configInfo.depthStencilInfo.depthTestEnable = VK_TRUE;
@@ -189,4 +195,4 @@ PipelineConfigInfo Pipeline::defaultPipelineConfigInfo(uint32_t width, uint32_t 
     return configInfo;
 };
 
-}  // namespace reb
+} // namespace reb

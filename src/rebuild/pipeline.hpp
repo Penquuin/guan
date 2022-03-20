@@ -5,44 +5,44 @@
 
 #include "device.hpp"
 
-namespace reb {
+namespace reb
+{
 
-struct PipelineConfigInfo {
+struct PipelineConfigInfo
+{
     VkViewport viewport;
     VkRect2D scissor;
     VkPipelineInputAssemblyStateCreateInfo inputAssemblyInfo;
     VkPipelineRasterizationStateCreateInfo rasterizationInfo;
     VkPipelineMultisampleStateCreateInfo multisampleInfo;
     VkPipelineColorBlendAttachmentState colorBlendAttachment;
-    VkPipelineColorBlendStateCreateInfo colorBlendInfo;
     VkPipelineDepthStencilStateCreateInfo depthStencilInfo;
     VkPipelineLayout pipelineLayout = nullptr;
     VkRenderPass renderPass = nullptr;
     uint32_t subpass = 0;
 };
 
-class Pipeline {
-   private:
-    static std::vector<char> readFile(const std::string* const filePath);
+class Pipeline
+{
+  private:
+    static std::vector<char> readFile(const std::string *const filePath);
 
-    void createGraphicPipeline(const std::string* vertShaderPath, const std::string* fragShaderPath,
-                               PipelineConfigInfo& configInfo);
+    void createGraphicPipeline(const std::string *vertShaderPath, const std::string *fragShaderPath, PipelineConfigInfo &configInfo);
 
-    void createShaderModule(const std::vector<char>* code, VkShaderModule* module);
+    void createShaderModule(const std::vector<char> *code, VkShaderModule *module);
 
-    Device* device;
+    Device *device;
     VkPipeline graphicsPipeline;
     VkShaderModule vertShader, fragShader;
 
-   public:
-    Pipeline(Device* device, std::string vertShaderPath, std::string fragShaderPath,
-             PipelineConfigInfo configInfo);
+  public:
+    Pipeline(Device *device, std::string vertShaderPath, std::string fragShaderPath, PipelineConfigInfo configInfo);
     ~Pipeline();
 
-    Pipeline(const Pipeline&) = delete;
-    void operator=(const Pipeline&) = delete;
+    Pipeline(const Pipeline &) = delete;
+    void operator=(const Pipeline &) = delete;
 
     static PipelineConfigInfo defaultPipelineConfigInfo(uint32_t width, uint32_t height);
 };
 
-}  // namespace reb
+} // namespace reb

@@ -2,11 +2,15 @@
 
 #include "application.hpp"
 
-int main() {
+int main()
+{
     reb::Application app;
-    try {
+    try
+    {
         app.run();
-    } catch (const std::exception& e) {
+    }
+    catch (const std::exception &e)
+    {
         std::cerr << e.what() << '\n';
         return EXIT_FAILURE;
     }

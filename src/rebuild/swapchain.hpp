@@ -9,10 +9,12 @@
 #include <string>
 #include <vector>
 
-namespace reb {
+namespace reb
+{
 
-class SwapChain {
-   public:
+class SwapChain
+{
+  public:
     static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
 
     SwapChain(Device &deviceRef, VkExtent2D windowExtent);
@@ -21,16 +23,41 @@ class SwapChain {
     SwapChain(const SwapChain &) = delete;
     void operator=(const SwapChain &) = delete;
 
-    VkFramebuffer getFrameBuffer(int index) { return swapChainFramebuffers[index]; }
-    VkRenderPass getRenderPass() { return renderPass; }
-    VkImageView getImageView(int index) { return swapChainImageViews[index]; }
-    size_t imageCount() { return swapChainImages.size(); }
-    VkFormat getSwapChainImageFormat() { return swapChainImageFormat; }
-    VkExtent2D getSwapChainExtent() { return swapChainExtent; }
-    uint32_t width() { return swapChainExtent.width; }
-    uint32_t height() { return swapChainExtent.height; }
+    VkFramebuffer getFrameBuffer(int index)
+    {
+        return swapChainFramebuffers[index];
+    }
+    VkRenderPass getRenderPass()
+    {
+        return renderPass;
+    }
+    VkImageView getImageView(int index)
+    {
+        return swapChainImageViews[index];
+    }
+    size_t imageCount()
+    {
+        return swapChainImages.size();
+    }
+    VkFormat getSwapChainImageFormat()
+    {
+        return swapChainImageFormat;
+    }
+    VkExtent2D getSwapChainExtent()
+    {
+        return swapChainExtent;
+    }
+    uint32_t width()
+    {
+        return swapChainExtent.width;
+    }
+    uint32_t height()
+    {
+        return swapChainExtent.height;
+    }
 
-    float extentAspectRatio() {
+    float extentAspectRatio()
+    {
         return static_cast<float>(swapChainExtent.width) / static_cast<float>(swapChainExtent.height);
     }
     VkFormat findDepthFormat();
@@ -38,7 +65,7 @@ class SwapChain {
     VkResult acquireNextImage(uint32_t *imageIndex);
     VkResult submitCommandBuffers(const VkCommandBuffer *buffers, uint32_t *imageIndex);
 
-   private:
+  private:
     void createSwapChain();
     void createImageViews();
     void createDepthResources();
@@ -75,4 +102,4 @@ class SwapChain {
     size_t currentFrame = 0;
 };
 
-}  // namespace reb
+} // namespace reb
