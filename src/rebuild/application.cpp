@@ -12,6 +12,7 @@ Application::~Application()
 }
 Application::Application()
 {
+    loadModels();
     createPipelineLayout();
     createPipeline();
     createCommandBuffers();
@@ -101,7 +102,8 @@ void Application::createCommandBuffers()
         vkCmdBeginRenderPass(commandBuffers.at(i), &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
         pipeline->bind(commandBuffers.at(i));
-        vkCmdDraw(commandBuffers.at(i), 3, 1, 0, 0);
+        model->bind(commandBuffers.at(i));
+        model->draw(commandBuffers.at(i));
 
         vkCmdEndRenderPass(commandBuffers.at(i));
         if (vkEndCommandBuffer(commandBuffers.at(i)) != VK_SUCCESS)
@@ -126,6 +128,32 @@ void Application::drawFrame()
     {
         throw std::runtime_error("Failed to present swapchain image!");
     }
+}
+
+void runTree(std::vector<Model::Vertex> *vertices, int i, glm::vec2 left, glm::vec2 right, glm::vec2 top)
+{
+    if (i <= 0)
+    {
+        vertices->push_back({top, {1.0f, 1.0f, 1.0f}});
+        vertices->push_back({right, {1.0f, 1.0f, 1.0f}});
+        vertices->push_back({left, {1.0f, 1.0f, 1.0f}});
+    }
+    else
+    {
+        auto leftTop = 0.5f * (left + top);
+        auto rightTop = 0.5f * (right + top);
+        auto leftRight = 0.5f * (left + right);
+        runTree(vertices, i - 1, left, leftRight, leftTop);
+        runTree(vertices, i - 1, leftRight, right, rightTop);
+        runTree(vertices, i - 1, leftTop, rightTop, top);
+    }
+}
+
+void Application::loadModels()
+{
+    std::vector<Model::Vertex> vertices;
+    runTree(&vertices, 10, {-0.5f, 0.5f}, {0.5f, 0.5f}, {0.0f, -0.5f});
+    model = std::make_unique<Model>(&device, &vertices);
 }
 
 } // namespace reb

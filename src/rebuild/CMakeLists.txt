@@ -10,6 +10,7 @@ application.cpp
 pipeline.cpp
 device.cpp
 swapchain.cpp
+model.cpp
 )
 
 set(headerfiles
@@ -18,6 +19,7 @@ application.hpp
 pipeline.hpp
 device.hpp
 swapchain.hpp
+model.hpp
 )
 
 

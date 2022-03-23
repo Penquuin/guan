@@ -4,6 +4,7 @@
 #include <vector>
 
 #include "device.hpp"
+#include "model.hpp"
 #include "pipeline.hpp"
 #include "swapchain.hpp"
 #include "window.hpp"
@@ -16,6 +17,7 @@ class Application
     static constexpr int WIDTH = 800;
     static constexpr int HEIGHT = 800;
 
+    void loadModels();
     void createPipelineLayout();
     void createPipeline();
     void createCommandBuffers();
@@ -28,6 +30,7 @@ class Application
     std::unique_ptr<Pipeline> pipeline;
     VkPipelineLayout pipelineLayout;
     std::vector<VkCommandBuffer> commandBuffers;
+    std::unique_ptr<Model> model;
 
   public:
     void run();
