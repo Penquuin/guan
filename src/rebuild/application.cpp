@@ -134,9 +134,9 @@ void runTree(std::vector<Model::Vertex> *vertices, int i, glm::vec2 left, glm::v
 {
     if (i <= 0)
     {
-        vertices->push_back({top, {1.0f, 1.0f, 1.0f}});
-        vertices->push_back({right, {1.0f, 1.0f, 1.0f}});
-        vertices->push_back({left, {1.0f, 1.0f, 1.0f}});
+        vertices->push_back({top, {1.0f, 1.0f, 0.0f}});
+        vertices->push_back({right, {1.0f, 1.0f, 0.0f}});
+        vertices->push_back({left, {1.0f, 1.0f, 0.0f}});
     }
     else
     {
@@ -152,7 +152,7 @@ void runTree(std::vector<Model::Vertex> *vertices, int i, glm::vec2 left, glm::v
 void Application::loadModels()
 {
     std::vector<Model::Vertex> vertices;
-    runTree(&vertices, 10, {-0.5f, 0.5f}, {0.5f, 0.5f}, {0.0f, -0.5f});
+    runTree(&vertices, 5, {-0.5f, 0.5f}, {0.5f, 0.5f}, {0.0f, -0.5f});
     model = std::make_unique<Model>(&device, &vertices);
 }
 
