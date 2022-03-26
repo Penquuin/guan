@@ -62,7 +62,7 @@ std::vector<VkVertexInputAttributeDescription> Model::Vertex::getAttributeDescri
     attributeDescriptions[1].binding = 0;
     attributeDescriptions[1].location = 1;
     attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-    attributeDescriptions[1].offset = sizeof(Vertex::position);
+    attributeDescriptions[1].offset = offsetof(Vertex, Vertex::color);
 
     return attributeDescriptions;
 }

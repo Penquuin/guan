@@ -22,10 +22,12 @@ class Application
     void createPipeline();
     void createCommandBuffers();
     void drawFrame();
+    void recreateSwapchain();
+    void recordCommandBuffer(int imageIndex);
 
     Window window{WIDTH, HEIGHT, "Hello Vulkan"};
     Device device{window};
-    SwapChain swapchain{device, window.getExtent()};
+    std::unique_ptr<SwapChain> swapchain;
 
     std::unique_ptr<Pipeline> pipeline;
     VkPipelineLayout pipelineLayout;

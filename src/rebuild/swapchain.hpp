@@ -16,12 +16,14 @@ class SwapChain
 {
   public:
     static constexpr int MAX_FRAMES_IN_FLIGHT = 2;
+    static VkSwapchainKHR oldSwapChain;
 
     SwapChain(Device &deviceRef, VkExtent2D windowExtent);
     ~SwapChain();
 
     SwapChain(const SwapChain &) = delete;
-    void operator=(const SwapChain &) = delete;
+    SwapChain &operator=(const SwapChain &) = delete;
+    SwapChain() = default;
 
     VkFramebuffer getFrameBuffer(int index)
     {
